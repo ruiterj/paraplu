@@ -1,18 +1,125 @@
 import './style.css'
 
+// Set this to true for demo mode, false for real weather
+const DEMO_MODE = true;
+
 let shakeTimeouts = [];
+
+const weatherTypes = [
+    'clear',
+    'rain',
+    'drizzle',
+    'snow',
+    'thunderstorm',
+    'clouds',
+    'mist'
+];
+
+const yesNoResponses = {
+    yes: [
+        "JA!",
+        "Jazeker!",
+        "100% JA!",
+        "Absoluut!",
+        "Natuurlijk!",
+        "Zeker weten!",
+        "JA JA JA!",
+        "Neem maar mee!",
+        "Doe maar wel!",
+        "Anders word je nat!",
+        "Ja, duh!",
+        "Tuurlijk!"
+    ],
+    no: [
+        "NEE!",
+        "Nee hoor!",
+        "Laat maar thuis!",
+        "Hoeft niet!",
+        "Vandaag niet!",
+        "Nope!",
+        "Echt niet!",
+        "Nergens voor nodig!",
+        "Geen paraplu dag!",
+        "Blijft droog!",
+        "Lekker niet!",
+        "Nee joh!"
+    ]
+};
+
+const funnyResponses = {
+    rain: [
+        "Een paraplu is geen overbodige luxe!",
+        "Zelfs de eenden zoeken een schuilplek.",
+        "Perfect weer voor Nederlanders!",
+        "De hemel huilt weer eens.",
+        "Tijd voor die fancy regenjas!",
+        "Nederlandse zomer op z'n best.",
+        "Regent het? Dan maar binnen Netflix kijken.",
+        "Waterpret van boven!"
+    ],
+    drizzle: [
+        "Miezer miezer, paraplu wijzer!",
+        "Typisch Nederlands weertje weer.",
+        "Net genoeg regen om je kapsel te verpesten.",
+        "Motregentje? Gewoon doorlopen!",
+        "Niet echt regen, meer een vochtige high-five uit de hemel.",
+        "Wel nat, niet zeiken.",
+        "Miezeren... Het kan altijd erger!"
+    ],
+    snow: [
+        "Winter wonderland alert!",
+        "Tijd voor een sneeuwballengevecht!",
+        "Het land kleurt weer even wit.",
+        "Eindelijk wat anders dan regen!",
+        "Pak je slee maar uit de schuur.",
+        "Code geel? Nee, code wit!",
+        "Sneeuwen in Nederland? Dat betekent chaos!"
+    ],
+    thunderstorm: [
+        "Thor is weer aan het bowlen daarboven!",
+        "Tijd om binnen te schuilen!",
+        "Dit is wat je krijgt als je sokken in sandalen draagt.",
+        "Het dondert en het bliksemt en het regent meters bier... of niet.",
+        "Zelfs je paraplu is nu bang.",
+        "Onweer? Tijd voor pannenkoeken!",
+        "De goden zijn boos vandaag."
+    ],
+    clouds: [
+        "Grijs is ook een kleur!",
+        "De zon heeft even pauze.",
+        "Wolken zijn ook maar zwevende watjes.",
+        "Typisch Nederlands dekentje boven ons.",
+        "Fifty shades of grey, meteorologische editie.",
+        "Bewolkt? Noem het maar gezellig binnen-weer.",
+        "De wolken houden een vergadering."
+    ],
+    mist: [
+        "Silent Hill in Nederland!",
+        "Waar is die kerktoren gebleven?",
+        "Mistig als erwtensoep.",
+        "Zelfs de GPS is de weg kwijt.",
+        "Perfect weer voor verstoppertje.",
+        "Die mist is dikker dan moeders stamppot!",
+        "Het lijkt Silent Hill wel, maar dan Nederlandser."
+    ],
+    clear: [
+        "Geen paraplu nodig, geniet ervan!",
+        "Eindelijk! De zon heeft Nederland gevonden!",
+        "Snel, naar buiten voor het weer regent!",
+        "Een zeldzaam meteorologisch verschijnsel: de zon!",
+        "Bewaar deze dag in je geheugen.",
+        "Zonnig? In Nederland? Is dit een droom?",
+        "Quick, maak foto's voordat de wolken terugkomen!"
+    ]
+};
 
 function clearAnimations() {
     const container = document.querySelector('.animation-container');
     if (container) container.remove();
     
-    // Remove any weather-specific classes from body
     document.body.className = '';
-    
-    // Reset any transform effects from thunder
     document.body.style.transform = 'none';
     
-    // Clear shake timeouts
     shakeTimeouts.forEach(timeout => clearTimeout(timeout));
     shakeTimeouts = [];
 }
@@ -30,12 +137,12 @@ function createRain(intensity = 'normal') {
     switch(intensity) {
         case 'heavy':
             numberOfDrops = 150;
-            speedRange = { min: 0.5, max: 0.8 }; // Faster
+            speedRange = { min: 0.5, max: 0.8 };
             dropClass = 'rain-drop heavy';
             break;
         case 'light':
             numberOfDrops = 50;
-            speedRange = { min: 1, max: 1.5 }; // Slower
+            speedRange = { min: 1, max: 1.5 };
             dropClass = 'rain-drop light';
             break;
         default:
@@ -128,7 +235,6 @@ function createThunderstorm() {
     container.className = 'animation-container';
     document.body.prepend(container);
     
-    // Add dark storm clouds
     const numberOfClouds = 6;
     for (let i = 0; i < numberOfClouds; i++) {
         const cloud = document.createElement('div');
@@ -149,20 +255,17 @@ function createThunderstorm() {
         container.appendChild(cloud);
     }
     
-    // Add heavy rain
     createRain('heavy');
     
-    // Add lightning effect
     const lightning = document.createElement('div');
     lightning.className = 'lightning';
     container.appendChild(lightning);
     
     function flashLightning() {
         lightning.style.animation = 'none';
-        lightning.offsetHeight; // Trigger reflow
+        lightning.offsetHeight;
         lightning.style.animation = 'lightning 1s';
         
-        // Enhanced thunder shake effect
         const shakeAmount = 15;
         const shakeSequence = [
             { x: shakeAmount, y: -shakeAmount/2, duration: 50 },
@@ -232,7 +335,6 @@ function createSun() {
     sun.style.left = '75%';
     sun.style.top = '15%';
     
-    // Add rays
     for (let i = 0; i < 12; i++) {
         const ray = document.createElement('div');
         ray.className = 'sun-ray';
@@ -243,98 +345,131 @@ function createSun() {
     container.appendChild(sun);
 }
 
-const weatherTypes = [
-    'clear',
-    'rain',
-    'drizzle',
-    'snow',
-    'thunderstorm',
-    'clouds',
-    'mist'
-];
-
 function demoWeatherEffect(weatherType) {
     const weatherInfo = document.getElementById('weather-info');
     
-    // Clear previous animations
     clearAnimations();
     
-    // Create appropriate weather animation
+    const getRandomResponse = (array) => array[Math.floor(Math.random() * array.length)];
+    
     switch (weatherType) {
         case 'rain':
             createRain('heavy');
             document.body.classList.add('weather-rain');
             weatherInfo.innerHTML = `
-                <div class="result">Heavy Rain</div>
-                <div class="message">Absolutely! The clouds are having an emotional moment.</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.yes)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.rain)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
             break;
         case 'drizzle':
             createRain('light');
             document.body.classList.add('weather-drizzle');
             weatherInfo.innerHTML = `
-                <div class="result">Light Drizzle</div>
-                <div class="message">Better safe than sorry!</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.yes)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.drizzle)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
             break;
         case 'snow':
             createSnow();
             document.body.classList.add('weather-snow');
             weatherInfo.innerHTML = `
-                <div class="result">Snow</div>
-                <div class="message">Time for a different kind of umbrella!</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.no)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.snow)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
             break;
         case 'thunderstorm':
             createThunderstorm();
             document.body.classList.add('weather-thunderstorm');
             weatherInfo.innerHTML = `
-                <div class="result">Thunderstorm</div>
-                <div class="message">Stay inside or bring the whole rain gear collection!</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.yes)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.thunderstorm)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
             break;
         case 'clouds':
             createClouds();
             document.body.classList.add('weather-clouds');
             weatherInfo.innerHTML = `
-                <div class="result">Cloudy</div>
-                <div class="message">Just cloudy, no umbrella needed!</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.no)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.clouds)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
             break;
         case 'mist':
             createMist();
             document.body.classList.add('weather-mist');
             weatherInfo.innerHTML = `
-                <div class="result">Misty</div>
-                <div class="message">Spooky, but your umbrella can sit this one out.</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.no)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.mist)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
             break;
         default:
             createSun();
             document.body.classList.add('weather-clear');
             weatherInfo.innerHTML = `
-                <div class="result">Clear</div>
-                <div class="message">Clear skies ahead! Leave the umbrella at home.</div>
-                <div class="location">Demo Mode</div>
+                <div class="umbrella-needed">${getRandomResponse(yesNoResponses.no)}</div>
+                <div class="message">${getRandomResponse(funnyResponses.clear)}</div>
+                <div class="location">${DEMO_MODE ? 'Demo Modus' : ''}</div>
             `;
     }
 }
 
+async function checkWeather() {
+    try {
+        const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
+        
+        const position = await new Promise((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+
+        const { latitude, longitude } = position.coords;
+        const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}`
+        );
+        
+        if (!response.ok) {
+            throw new Error(`Weer API fout: ${response.status}`);
+        }
+        
+        const data = await response.json();
+        const weatherType = data.weather[0].main.toLowerCase();
+        
+        demoWeatherEffect(weatherType);
+        const weatherInfo = document.getElementById('weather-info');
+        const locationDiv = weatherInfo.querySelector('.location');
+        if (locationDiv) {
+            locationDiv.textContent = `📍 ${data.name}`;
+        }
+        
+    } catch (error) {
+        console.error('Weer check fout:', error);
+        const weatherInfo = document.getElementById('weather-info');
+        weatherInfo.innerHTML = `
+            <div class="error">
+                Oeps! We kunnen het weer momenteel niet checken.<br>
+                Fout: ${error.message}<br>
+                Probeer het later nog eens!
+            </div>
+        `;
+    }
+}
+
 let currentWeatherIndex = 0;
+let demoInterval;
 
 function cycleWeather() {
     demoWeatherEffect(weatherTypes[currentWeatherIndex]);
     currentWeatherIndex = (currentWeatherIndex + 1) % weatherTypes.length;
 }
 
-// Initial weather effect
-cycleWeather();
-
-// Cycle every 5 seconds
-setInterval(cycleWeather, 5000);
+// Initialize based on mode
+if (DEMO_MODE) {
+    cycleWeather();
+    demoInterval = setInterval(cycleWeather, 5000);
+} else {
+    checkWeather();
+}
